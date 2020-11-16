@@ -2,6 +2,8 @@
 
 namespace Wikidata;
 
+use GuzzleHttp\RequestOptions;
+use MCC\Component\Proxy\Proxy;
 use Exception;
 use GuzzleHttp\Client;
 use Wikidata\Entity;
@@ -12,6 +14,18 @@ class Wikidata
 {
 
     const API_ENDPOINT = 'https://www.wikidata.org/w/api.php';
+
+    private $client;
+    /**
+     * @var \Wikidata\SparqlClient
+     */
+    private $sparqlClient;
+
+    public function __construct(HttpClient $client, SparqlClient $sparqlClient)
+    {
+        $this->client = $client;
+        $this->sparqlClient = $sparqlClient;
+    }
 
     /**
      * Search entities by term
@@ -24,7 +38,7 @@ class Wikidata
      */
     public function search($query, $lang = 'en', $limit = 10)
     {
-        $client = new Client();
+        $client = $this->client;
 
         $response = $client->get(self::API_ENDPOINT, [
             'query' => [
@@ -90,7 +104,7 @@ class Wikidata
             } LIMIT ' . $limit . '
         ';
 
-        $client = new SparqlClient();
+        $client = $this->sparqlClient;
 
         $data = $client->execute($query);
 
@@ -139,7 +153,7 @@ class Wikidata
             SERVICE wikibase:label { bd:serviceParam wikibase:language "' . $lang . ',en" }
         }';
 
-        $client = new SparqlClient();
+        $client = $this->sparqlClient;
 
         $data = $client->execute($query);
         if (!$data) {

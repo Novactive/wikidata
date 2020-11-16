@@ -30,7 +30,18 @@ class SparqlClient {
    */
   private $method = 'GET';
 
-  /**
+    /**
+     * @var HttpClient
+     */
+    private $client;
+
+    public function __construct(HttpClient $client)
+  {
+      $this->client = $client;
+  }
+
+
+    /**
    * Query SPARQL endpoint
    *
    * @param string $query
@@ -47,7 +58,7 @@ class SparqlClient {
       $this->method = 'POST';
     }
 
-    $client = new Client();
+    $client = $this->client;
 
     $response = $client->request( $this->method, self::SPARQL_ENDPOINT, [
         'query' => [
